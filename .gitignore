@@ -1,0 +1,22 @@
+# environments and caches
+.venv/
+__pycache__/
+.pytest_cache/
+
+# downloaded model weights (enhance_flyeye.py fetches them on first run)
+weights/
+
+# data and generated outputs (these live in the shared Drive folder, not in git)
+clips/
+results/
+demo/
+*.npz
+*.npy
+*.mp4
+*.mov
+*.gif
+
+# local scratch
+_review_scratch/
+_synthetic_test/*
+!_synthetic_test/make_synthetic_videos.py

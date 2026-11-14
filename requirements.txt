@@ -1,0 +1,11 @@
+# prep_clips.py (laptop) needs only these two:
+numpy
+opencv-python-headless
+# everything else (Colab or local, Python 3.10-3.12):
+flyvis
+matplotlib
+pillow
+pytest
+spandrel
+scipy
+scikit-image
