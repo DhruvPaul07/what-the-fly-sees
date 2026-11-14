@@ -9,7 +9,6 @@ weights/
 # data and generated outputs (these live in the shared Drive folder, not in git)
 clips/
 results/
-demo/
 *.npz
 *.npy
 *.mp4
@@ -22,3 +21,9 @@ _synthetic_test/*
 !_synthetic_test/make_synthetic_videos.py
 .flyvis_data/
 WRITEUP.md
+
+# the presentable demo media in demo/ IS tracked (see demo/README.md)
+!demo/*.mp4
+!demo/*.gif
+demo/FAKE*
+demo/*.npy
