@@ -1,0 +1,170 @@
+[
+ {
+  "group": "Photoreceptors",
+  "target": "brightness",
+  "split": "train",
+  "net000": 0.9998887181282043,
+  "min": 0.9976479411125183,
+  "max": 0.9998887181282043
+ },
+ {
+  "group": "Photoreceptors",
+  "target": "brightness",
+  "split": "natural",
+  "net000": 0.9999415278434753,
+  "min": 0.9989888668060303,
+  "max": 0.9999415278434753
+ },
+ {
+  "group": "Photoreceptors",
+  "target": "brightness",
+  "split": "synthetic",
+  "net000": 0.99970543384552,
+  "min": 0.9978029727935791,
+  "max": 0.99970543384552
+ },
+ {
+  "group": "Lamina",
+  "target": "brightness",
+  "split": "train",
+  "net000": 0.976959764957428,
+  "min": 0.9016081690788269,
+  "max": 0.9862666130065918
+ },
+ {
+  "group": "Lamina",
+  "target": "brightness",
+  "split": "natural",
+  "net000": 0.9887786507606506,
+  "min": 0.9476549625396729,
+  "max": 0.9916453957557678
+ },
+ {
+  "group": "Lamina",
+  "target": "brightness",
+  "split": "synthetic",
+  "net000": 0.9706345796585083,
+  "min": 0.9296057224273682,
+  "max": 0.9706345796585083
+ },
+ {
+  "group": "Medulla",
+  "target": "brightness",
+  "split": "train",
+  "net000": 0.9918661117553711,
+  "min": 0.9793838858604431,
+  "max": 0.9938211441040039
+ },
+ {
+  "group": "Medulla",
+  "target": "brightness",
+  "split": "natural",
+  "net000": 0.9956613183021545,
+  "min": 0.9892003536224365,
+  "max": 0.9968299865722656
+ },
+ {
+  "group": "Medulla",
+  "target": "brightness",
+  "split": "synthetic",
+  "net000": 0.98398357629776,
+  "min": 0.968407928943634,
+  "max": 0.9886508584022522
+ },
+ {
+  "group": "Motion detectors",
+  "target": "brightness",
+  "split": "train",
+  "net000": 0.29329052567481995,
+  "min": 0.29329052567481995,
+  "max": 0.8083428740501404
+ },
+ {
+  "group": "Motion detectors",
+  "target": "brightness",
+  "split": "natural",
+  "net000": 0.3851979970932007,
+  "min": 0.3851979970932007,
+  "max": 0.9023960828781128
+ },
+ {
+  "group": "Motion detectors",
+  "target": "brightness",
+  "split": "synthetic",
+  "net000": 0.274570107460022,
+  "min": 0.274570107460022,
+  "max": 0.8456719517707825
+ },
+ {
+  "group": "Motion detectors",
+  "target": "change",
+  "split": "train",
+  "net000": 0.6768553256988525,
+  "min": 0.627623975276947,
+  "max": 0.7297165989875793
+ },
+ {
+  "group": "Motion detectors",
+  "target": "change",
+  "split": "natural",
+  "net000": 0.6834529638290405,
+  "min": 0.6325400471687317,
+  "max": 0.7561994194984436
+ },
+ {
+  "group": "Motion detectors",
+  "target": "change",
+  "split": "synthetic",
+  "net000": 0.7117030024528503,
+  "min": 0.6618673801422119,
+  "max": 0.7614538669586182
+ },
+ {
+  "group": "Shuffled control",
+  "target": "brightness",
+  "split": "train",
+  "net000": 0.07415534555912018,
+  "min": -0.02150181494653225,
+  "max": 0.3204681873321533
+ },
+ {
+  "group": "Shuffled control",
+  "target": "brightness",
+  "split": "natural",
+  "net000": -0.06608977913856506,
+  "min": -0.11158701777458191,
+  "max": 0.2846745252609253
+ },
+ {
+  "group": "Shuffled control",
+  "target": "brightness",
+  "split": "synthetic",
+  "net000": -0.06510872393846512,
+  "min": -0.06510872393846512,
+  "max": 0.291692316532135
+ },
+ {
+  "group": "Mean-brightness baseline",
+  "target": "brightness",
+  "split": "train",
+  "net000": 0.3072364628314972,
+  "min": 0.3072364628314972,
+  "max": 0.3072364628314972
+ },
+ {
+  "group": "Mean-brightness baseline",
+  "target": "brightness",
+  "split": "natural",
+  "net000": 0.21765631437301636,
+  "min": 0.21765631437301636,
+  "max": 0.21765631437301636
+ },
+ {
+  "group": "Mean-brightness baseline",
+  "target": "brightness",
+  "split": "synthetic",
+  "net000": 0.2800889015197754,
+  "min": 0.2800889015197754,
+  "max": 0.2800889015197754
+ }
+]

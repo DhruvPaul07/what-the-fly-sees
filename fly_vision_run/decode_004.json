@@ -1,0 +1,112 @@
+{
+ "model": 4,
+ "train": {
+  "Photoreceptors": {
+   "brightness": 0.9998581409454346,
+   "change": 0.9939076900482178
+  },
+  "Lamina": {
+   "brightness": 0.9862666130065918,
+   "change": 0.9254779815673828
+  },
+  "Medulla": {
+   "brightness": 0.9938211441040039,
+   "change": 0.964741051197052
+  },
+  "Motion detectors": {
+   "brightness": 0.4702536165714264,
+   "change": 0.645228922367096
+  },
+  "Shuffled control": {
+   "brightness": 0.3204681873321533,
+   "change": 0.12193384021520615
+  },
+  "Mean-brightness baseline": {
+   "brightness": 0.3072364628314972,
+   "change": null
+  },
+  "_motion_pred_std_ratio": 0.8466091379523277
+ },
+ "natural": {
+  "Photoreceptors": {
+   "brightness": 0.9999352693557739,
+   "change": 0.9951577186584473
+  },
+  "Lamina": {
+   "brightness": 0.9916453957557678,
+   "change": 0.9278168082237244
+  },
+  "Medulla": {
+   "brightness": 0.9968299865722656,
+   "change": 0.973590075969696
+  },
+  "Motion detectors": {
+   "brightness": 0.6029466390609741,
+   "change": 0.6628682017326355
+  },
+  "Shuffled control": {
+   "brightness": 0.2846745252609253,
+   "change": 0.10568133741617203
+  },
+  "Mean-brightness baseline": {
+   "brightness": 0.21765631437301636,
+   "change": null
+  },
+  "_motion_pred_std_ratio": 0.7068018553157648
+ },
+ "synthetic": {
+  "Photoreceptors": {
+   "brightness": 0.9996960759162903,
+   "change": 0.9938636422157288
+  },
+  "Lamina": {
+   "brightness": 0.9625598192214966,
+   "change": 0.933360755443573
+  },
+  "Medulla": {
+   "brightness": 0.9886508584022522,
+   "change": 0.9728084206581116
+  },
+  "Motion detectors": {
+   "brightness": 0.47135841846466064,
+   "change": 0.7507822513580322
+  },
+  "Shuffled control": {
+   "brightness": 0.291692316532135,
+   "change": 0.19693738222122192
+  },
+  "Mean-brightness baseline": {
+   "brightness": 0.2800889015197754,
+   "change": null
+  },
+  "_motion_pred_std_ratio": 0.7048996773858865
+ },
+ "still": {
+  "Photoreceptors": {
+   "brightness": 0.9999901652336121,
+   "change": null
+  },
+  "Lamina": {
+   "brightness": 0.9994201064109802,
+   "change": null
+  },
+  "Medulla": {
+   "brightness": 0.9989631772041321,
+   "change": null
+  },
+  "Motion detectors": {
+   "brightness": 0.60738605260849,
+   "change": null
+  },
+  "Shuffled control": {
+   "brightness": 0.19447247684001923,
+   "change": null
+  },
+  "Mean-brightness baseline": {
+   "brightness": 0.1733558624982834,
+   "change": null
+  },
+  "_motion_pred_std_ratio": 0.6858716756105423
+ },
+ "seconds": 141
+}
