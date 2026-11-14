@@ -44,3 +44,18 @@ Needs `clips/test_main.npz` and `results/orientation.json`. Downloads the
 Real-ESRGAN weights to `weights/` on first run. Writes `demo/ai_enhanced.mp4`,
 `.gif`, `ai_enhanced_still.png`, `demo/ai_frames.npy`, `results/fly_lowres.npy`
 and `results/ai_enhance_metrics.json`, and prints a one-line verdict.
+
+## Plan C: sanity checks, write-up, submission
+
+```bash
+flyvis download-pretrained --skip_large_files      # once; set FLYVIS_ROOT_DIR first if you use one
+python sanity_checks.py --root <fly_sees folder>   # 5 checks -> results/sanity/*.png + sanity.json
+python looming_bonus.py --root <fly_sees folder>   # optional bonus figure
+python build_writeup.py --root <fly_sees folder> --team "A=..., B=..., C=..."
+```
+
+`build_writeup.py` reads A's `results/scores.csv` and `results/checks.json`, the
+sanity results, and B's `demo/` files and payloads, writes `WRITEUP.md` into the
+fly_sees folder, and prints the submission checklist. Anything missing is marked
+"not available yet"; table cells without a score stay blank. Colab version:
+`colab_cells_C.md`.

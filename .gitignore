@@ -20,3 +20,5 @@ demo/
 _review_scratch/
 _synthetic_test/*
 !_synthetic_test/make_synthetic_videos.py
+.flyvis_data/
+WRITEUP.md

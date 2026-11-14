@@ -235,3 +235,108 @@ def test_rerun_removes_stale_training_pieces(tmp_path, monkeypatch):
     saved, _ = prep_clips.prep_train_clips([tmp_path / "a.mov"], tmp_path)
     assert [p.name for p in saved] == ["train_00.npz"]
     assert sorted(p.name for p in tmp_path.glob("train_*.npz")) == ["train_00.npz"]
+
+
+# --- build_writeup (Plan C) ---
+
+SCORES_CSV = """group,train_score,test_footage_score,test_synthetic_score,network
+R1-R6,0.95,0.93,0.94,flow/0000/000
+L1-L5,0.90,0.85,,flow/0000/000
+Mi_Tm,0.80,0.70,0.75,flow/0000/000
+T4_T5,0.60,0.45,0.50,flow/0000/000
+shuffled,0.05,0.02,0.03,flow/0000/000
+mean_brightness,0.10,0.08,0.09,flow/0000/000
+T4_T5,0.58,0.41,0.47,flow/0000/001
+"""
+
+
+def write_scores(tmp_path, text=SCORES_CSV):
+    (tmp_path / "results").mkdir(exist_ok=True)
+    (tmp_path / "results" / "scores.csv").write_text(text)
+    import build_writeup
+
+    return build_writeup, build_writeup.read_scores(tmp_path / "results" / "scores.csv")
+
+
+@pytest.mark.parametrize("name,key", [
+    ("R1-R6", "photoreceptors"), ("photoreceptors", "photoreceptors"), ("Lamina (L1-L5)", "lamina"),
+    ("lamina", "lamina"), ("Mi_Tm", "medulla"), ("medulla", "medulla"), ("T4/T5", "motion"),
+    ("motion", "motion"), ("shuffled_control", "shuffled"), ("mean_brightness", "baseline"), ("LPTC", None),
+])
+def test_group_names_from_scores_csv_map_to_table_rows(name, key):
+    import build_writeup
+
+    assert build_writeup.group_key(name) == key
+
+
+def test_results_table_leaves_missing_scores_blank_and_adds_network_spread(tmp_path):
+    bw, rows = write_scores(tmp_path)
+    table = bw.results_table(rows)
+    assert "| Lamina (L1–L5) | 0.900 | 0.850 |  |  |" in table
+    assert "| Motion detectors (T4/T5) | 0.600 | 0.450 | 0.500 | 0.410–0.450 |" in table
+
+
+def test_results_table_is_all_blank_without_scores(tmp_path):
+    import build_writeup
+
+    table = build_writeup.results_table(build_writeup.read_scores(tmp_path / "missing.csv"))
+    assert "| Photoreceptors (R1–R6) |  |  |  |" in table and not any(ch.isdigit() for ch in table.split("---|")[-1].replace("R1–R6", "").replace("L1–L5", "").replace("T4/T5", ""))
+
+
+def test_honesty_checks_name_groups_that_fail(tmp_path):
+    bad = SCORES_CSV.replace("T4_T5,0.60,0.45", "T4_T5,0.60,0.01").replace("L1-L5,0.90,0.85", "L1-L5,0.90,0.97")
+    bw, rows = write_scores(tmp_path, bad)
+    known = bw.by_key(bw.primary_rows(rows))
+    beats, beats_note = bw.check_beats_controls(known)
+    photo, photo_note = bw.check_none_beats_photoreceptors(known)
+    assert beats is False and "Motion detectors" in beats_note
+    assert photo is False and "Lamina" in photo_note
+
+
+def test_honesty_checks_are_unavailable_not_passed_without_scores(tmp_path):
+    import build_writeup as bw
+
+    assert bw.check_beats_controls({})[0] is None
+    assert bw.check_none_beats_photoreceptors({})[0] is None
+    assert bw.check_still_scene(tmp_path)[0] is None
+
+
+def test_still_scene_check_uses_the_demo_payloads(tmp_path):
+    import build_writeup as bw
+
+    (tmp_path / "results").mkdir()
+    rng = np.random.default_rng(0)
+    np.savez(tmp_path / "results" / "demo_payload.npz", recon_motion=rng.random((20, 721)).astype(np.float32))
+    np.savez(tmp_path / "results" / "demo_payload_still.npz", recon_motion=np.full((20, 721), 0.5, np.float32))
+    assert bw.check_still_scene(tmp_path)[0] is True
+    np.savez(tmp_path / "results" / "demo_payload_still.npz", recon_motion=rng.random((20, 721)).astype(np.float32))
+    assert bw.check_still_scene(tmp_path)[0] is False
+
+
+def test_writeup_builds_with_nothing_available_and_avoids_banned_wording(tmp_path):
+    import build_writeup as bw
+
+    text = bw.build_writeup(tmp_path, {}, {}, preliminary=False)
+    assert "not available yet" in text and bw.banned_phrases_in(text) == []
+    assert all(limit in text for limit in bw.LIMITS)
+
+
+def test_placeholder_payload_marks_writeup_preliminary(tmp_path):
+    bw, _ = write_scores(tmp_path)
+    np.savez(tmp_path / "results" / "demo_payload.npz", recon_motion=np.zeros((5, 721), np.float32), is_placeholder=True)
+    assert "preliminary (synthetic-trained)" in bw.build_writeup(tmp_path, {}, {}, preliminary=False)
+
+
+def test_sanity_notes_cannot_break_the_markdown_table(tmp_path):
+    import build_writeup as bw
+
+    sanity = {"photoreceptors_track": {"check": "photoreceptors_track", "passed": True, "note": "median |r| = 1.00"}}
+    assert "median \\|r\\| = 1.00" in bw.sanity_section(tmp_path, sanity)
+
+
+def test_best_lagged_correlation_finds_the_delay():
+    import sanity_checks
+
+    signal = np.sin(np.linspace(0, 12, 200))
+    r, lag = sanity_checks.best_lagged_correlation(signal[:-3], -signal[:-3][np.r_[0, 0, 0, 0:194]])
+    assert lag == 3 and r == pytest.approx(-1.0, abs=1e-6)
