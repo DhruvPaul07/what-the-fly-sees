@@ -1,0 +1,6 @@
+# Versions this run used (Python 3.12.3). flycns needs Python 3.11 or newer.
+numpy==2.5.4
+scipy==1.18.1
+matplotlib==3.11.2
+scikit-image==0.26.0
+flycns==0.7.0

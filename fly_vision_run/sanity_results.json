@@ -1,0 +1,87 @@
+{
+ "000": {
+  "grey_max_drift_last_half": 0.000438690185546875,
+  "grey_activity_range": 6.096230506896973,
+  "R1_vs_input_median_corr": 0.9393337667330502,
+  "ON_edge_T4": 2.8263707160949707,
+  "ON_edge_T5": 0.5910622477531433,
+  "OFF_edge_T4": 0.33386409282684326,
+  "OFF_edge_T5": 0.9360684752464294,
+  "settle_max_diff_from_grey_steady": 0.00035268068313598633,
+  "checks": {
+   "grey_flat": true,
+   "R1_tracks_input": true,
+   "ON_edge_T4_gt_T5": true,
+   "OFF_edge_T5_gt_T4": true,
+   "settles": true
+  }
+ },
+ "001": {
+  "grey_max_drift_last_half": 0.1632061004638672,
+  "grey_activity_range": 6.872684955596924,
+  "R1_vs_input_median_corr": 0.9267041353374059,
+  "ON_edge_T4": 4.730820178985596,
+  "ON_edge_T5": 2.6959304809570312,
+  "OFF_edge_T4": 0.7309540510177612,
+  "OFF_edge_T5": 2.3574962615966797,
+  "settle_max_diff_from_grey_steady": 0.0021169185638427734,
+  "checks": {
+   "grey_flat": false,
+   "R1_tracks_input": true,
+   "ON_edge_T4_gt_T5": true,
+   "OFF_edge_T5_gt_T4": true,
+   "settles": true
+  }
+ },
+ "002": {
+  "grey_max_drift_last_half": 0.3725624084472656,
+  "grey_activity_range": 9.940882682800293,
+  "R1_vs_input_median_corr": 0.9380755358028756,
+  "ON_edge_T4": 3.397693634033203,
+  "ON_edge_T5": 1.4885039329528809,
+  "OFF_edge_T4": 0.3012356758117676,
+  "OFF_edge_T5": 3.8979640007019043,
+  "settle_max_diff_from_grey_steady": 3.216914176940918,
+  "checks": {
+   "grey_flat": false,
+   "R1_tracks_input": true,
+   "ON_edge_T4_gt_T5": true,
+   "OFF_edge_T5_gt_T4": true,
+   "settles": false
+  }
+ },
+ "003": {
+  "grey_max_drift_last_half": 0.08599856495857239,
+  "grey_activity_range": 11.110447883605957,
+  "R1_vs_input_median_corr": 0.9442645589452991,
+  "ON_edge_T4": 8.655974388122559,
+  "ON_edge_T5": 3.123133659362793,
+  "OFF_edge_T4": 0.004754841327667236,
+  "OFF_edge_T5": 3.241910696029663,
+  "settle_max_diff_from_grey_steady": 0.017287850379943848,
+  "checks": {
+   "grey_flat": true,
+   "R1_tracks_input": true,
+   "ON_edge_T4_gt_T5": true,
+   "OFF_edge_T5_gt_T4": true,
+   "settles": true
+  }
+ },
+ "004": {
+  "grey_max_drift_last_half": 0.13983154296875,
+  "grey_activity_range": 102.18304443359375,
+  "R1_vs_input_median_corr": 0.9367869931556021,
+  "ON_edge_T4": 2.5762240886688232,
+  "ON_edge_T5": 0.7510333061218262,
+  "OFF_edge_T4": 4.360610008239746,
+  "OFF_edge_T5": 1.0443220138549805,
+  "settle_max_diff_from_grey_steady": 0.39011383056640625,
+  "checks": {
+   "grey_flat": true,
+   "R1_tracks_input": true,
+   "ON_edge_T4_gt_T5": true,
+   "OFF_edge_T5_gt_T4": false,
+   "settles": false
+  }
+ }
+}
