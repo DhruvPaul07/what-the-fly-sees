@@ -79,6 +79,7 @@ def main(argv=None) -> int:
     path = save_figure(make_figure(responses), args.root, FIGURE_NAME)
     print(f"Wrote {path}")
     print(LABEL)
+    print("Note: the looming disc also grows in area, so its larger summed response partly reflects stimulus size.")
     return 0
 
 

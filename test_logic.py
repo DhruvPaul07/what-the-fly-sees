@@ -1,4 +1,5 @@
 """Tests for the pure logic (no flyvis, no video files needed)."""
+import json
 import numpy as np
 import pytest
 
@@ -286,9 +287,9 @@ def test_results_table_is_all_blank_without_scores(tmp_path):
 def test_honesty_checks_name_groups_that_fail(tmp_path):
     bad = SCORES_CSV.replace("T4_T5,0.60,0.45", "T4_T5,0.60,0.01").replace("L1-L5,0.90,0.85", "L1-L5,0.90,0.97")
     bw, rows = write_scores(tmp_path, bad)
-    known = bw.by_key(bw.primary_rows(rows))
-    beats, beats_note = bw.check_beats_controls(known)
-    photo, photo_note = bw.check_none_beats_photoreceptors(known)
+    main = bw.primary_rows(rows)
+    beats, beats_note = bw.check_beats_controls(main)
+    photo, photo_note = bw.check_none_beats_photoreceptors(main)
     assert beats is False and "Motion detectors" in beats_note
     assert photo is False and "Lamina" in photo_note
 
@@ -296,8 +297,8 @@ def test_honesty_checks_name_groups_that_fail(tmp_path):
 def test_honesty_checks_are_unavailable_not_passed_without_scores(tmp_path):
     import build_writeup as bw
 
-    assert bw.check_beats_controls({})[0] is None
-    assert bw.check_none_beats_photoreceptors({})[0] is None
+    assert bw.check_beats_controls([])[0] is None
+    assert bw.check_none_beats_photoreceptors([])[0] is None
     assert bw.check_still_scene(tmp_path)[0] is None
 
 
@@ -340,3 +341,110 @@ def test_best_lagged_correlation_finds_the_delay():
     signal = np.sin(np.linspace(0, 12, 200))
     r, lag = sanity_checks.best_lagged_correlation(signal[:-3], -signal[:-3][np.r_[0, 0, 0, 0:194]])
     assert lag == 3 and r == pytest.approx(-1.0, abs=1e-6)
+
+
+# --- build_writeup against awkward real-world files (second review) ---
+
+def test_scores_csv_with_bom_and_capitalised_headers_is_read(tmp_path):
+    text = "﻿Group,Train_Score,Test_Footage_Score,Test_Synthetic_Score,Network\nR1-R6,0.9,0.8,0.7,0\n"
+    _, rows = write_scores(tmp_path, text)
+    assert rows[0]["key"] == "photoreceptors" and rows[0]["test_footage_score"] == 0.8 and rows[0]["network"] == "000"
+
+
+@pytest.mark.parametrize("value,expected", [
+    ("flow/0000/001", "001"), ("network_000", "000"), ("001", "001"), (1, "001"), ("1.0", "001"),
+    ("0.0", "000"), ("", "000"), ("nan", "000"), (None, "000"), ("NaN", "000"),
+])
+def test_network_labels_are_normalised(value, expected):
+    import build_writeup
+
+    assert build_writeup.network_id(value) == expected
+
+
+def test_main_table_uses_network_000_even_when_listed_last(tmp_path):
+    text = "group,train_score,test_footage_score,test_synthetic_score,network\nT4_T5,0.5,0.4,0.4,network_001\nT4_T5,0.6,0.45,0.5,network_000\n"
+    bw, rows = write_scores(tmp_path, text)
+    assert "| Motion detectors (T4/T5) | 0.600 | 0.450 | 0.500 | 0.400–0.450 |" in bw.results_table(rows)
+
+
+@pytest.mark.parametrize("name,key", [
+    ("R1-R6_mean", "photoreceptors"), ("photo_mean", "photoreceptors"), ("baseline_mean", "baseline"),
+    ("mean", "baseline"), ("shuffled_T4T5", "shuffled"), ("T4a-d+T5a-d", "motion"),
+    ("L1-L5+Mi+Tm+T4+T5", None), ("Mi_Tm+T4_T5", None), ("lamina+medulla", None), ("all", None),
+])
+def test_ambiguous_group_names_are_left_unknown_not_guessed(name, key):
+    import build_writeup
+
+    assert build_writeup.group_key(name) == key
+
+
+def test_two_rows_for_one_table_row_keep_their_own_names(tmp_path):
+    text = "group,train_score,test_footage_score,test_synthetic_score,network\nMi1,0.8,0.7,0.7,0\nTm3,0.5,0.1,0.1,0\nmean,0.2,0.2,0.2,0\n"
+    bw, rows = write_scores(tmp_path, text)
+    table = bw.results_table(rows)
+    assert "| Medulla (Mi, Tm) |  |  |  |" in table and "| Mi1 | 0.800" in table and "| Tm3 | 0.500" in table
+    passed, note = bw.check_beats_controls(bw.primary_rows(rows))
+    assert passed is False and "Tm3" in note and "Mi1" not in note
+
+
+def test_unrecognised_group_still_counts_in_the_honesty_checks(tmp_path):
+    text = "group,train_score,test_footage_score,test_synthetic_score,network\nR1-R6,0.95,0.90,0.9,0\nall,0.99,0.95,0.9,0\nshuffled,0.1,0.1,0.1,0\n"
+    bw, rows = write_scores(tmp_path, text)
+    passed, note = bw.check_none_beats_photoreceptors(bw.primary_rows(rows))
+    assert passed is False and "all" in note
+
+
+def test_single_control_is_not_described_as_both(tmp_path):
+    text = "group,train_score,test_footage_score,test_synthetic_score,network\nR1-R6,0.95,0.90,0.9,0\nshuffled,0.1,0.1,0.1,0\n"
+    bw, rows = write_scores(tmp_path, text)
+    passed, note = bw.check_beats_controls(bw.primary_rows(rows))
+    assert passed is True and "both" not in note and "only control reported" in note
+
+
+def test_networks_agree_never_passes_on_scores_alone(tmp_path):
+    bw, rows = write_scores(tmp_path)
+    assert bw.check_networks_agree(rows, {})[0] == bw.REPORTED
+    assert bw.check_networks_agree(rows, {"second_network": {"passed": False}})[0] is False
+    assert bw.check_networks_agree([], {})[0] is None
+
+
+@pytest.mark.parametrize("content,expected", [
+    ("true", []), ("3", []), ("null", []), ("not json", []),
+    ('["gap ok"]', [("gap ok", None, "")]),
+    ('{"checks": [{"check": "gap", "passed": true, "note": "a\\nb"}]}', [("gap", True, "a b")]),
+    ('{"passed": true, "note": "fine"}', [("check 1", True, "fine")]),
+    ('{"still": "true", "gap": {"pass": false}}', [("still", True, ""), ("gap", False, "")]),
+])
+def test_pipeline_checks_survive_odd_json(tmp_path, content, expected):
+    import build_writeup
+
+    path = tmp_path / "checks.json"
+    path.write_text(content)
+    assert build_writeup.pipeline_checks(path) == expected
+
+
+def test_fake_payload_is_labelled_and_not_scored_as_still_scene(tmp_path):
+    import build_writeup as bw
+
+    (tmp_path / "results").mkdir()
+    for name in ("demo_payload.npz", "demo_payload_still.npz"):
+        np.savez(tmp_path / "results" / name, recon_motion=np.zeros((5, 721), np.float32), is_fake=True)
+    assert bw.payload_status(tmp_path) == "fake"
+    assert bw.check_still_scene(tmp_path)[0] is None
+    assert "layout test only" in bw.build_writeup(tmp_path, {}, {}, preliminary=False)
+
+
+def test_unedited_placeholders_are_not_printed_as_names():
+    import build_writeup
+
+    assert build_writeup.parse_pairs(["A=<name>, B=Bo", "C=<Colab link>"]) == {"B": "Bo"}
+
+
+def test_corrupt_sanity_json_is_replaced_not_fatal(tmp_path):
+    import sanity_checks
+
+    path = tmp_path / "results" / "sanity" / "sanity.json"
+    path.parent.mkdir(parents=True)
+    path.write_text("{half written")
+    sanity_checks.record(tmp_path, "uniform_gray", True, "ok")
+    assert json.loads(path.read_text()) == [{"check": "uniform_gray", "passed": True, "note": "ok"}]

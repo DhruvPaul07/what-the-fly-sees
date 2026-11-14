@@ -94,6 +94,11 @@ def mean_depolarization(activity, cell_types: tuple[str, ...]) -> float:
     return float(np.mean([np.clip(voltage_change(activity, t), 0.0, None).mean() for t in cell_types]))
 
 
+def peak_depolarization(activity, cell_types: tuple[str, ...]) -> float:
+    """Largest voltage rise above the first step in each column, averaged over columns and types."""
+    return float(np.mean([voltage_change(activity, t).max(axis=0).mean() for t in cell_types]))
+
+
 def mean_abs_change(activity, cell_types: tuple[str, ...]) -> float:
     """Mean |voltage change from the first step| (rises and falls) over time, columns and types."""
     return float(np.mean([np.abs(voltage_change(activity, t)).mean() for t in cell_types]))

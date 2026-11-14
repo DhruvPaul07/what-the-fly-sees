@@ -43,12 +43,26 @@ def record(root: Path, check: str, passed: bool, note: str) -> dict:
     """Add or replace this check's entry in results/sanity/sanity.json."""
     path = hr.resolve(root, SANITY_DIR / "sanity.json")
     path.parent.mkdir(parents=True, exist_ok=True)
-    existing = json.loads(path.read_text()) if path.exists() else []
+    existing = read_records(path)
     entry = {"check": check, "passed": bool(passed), "note": note}
     entries = [item for item in existing if item.get("check") != check] + [entry]
-    path.write_text(json.dumps(entries, indent=2))
+    temporary = path.with_name(path.name + ".tmp")
+    temporary.write_text(json.dumps(entries, indent=2))
+    temporary.replace(path)  # never leave a half-written sanity.json
     print(f"[{'PASS' if passed else 'FAIL'}] {check}: {note}")
     return entry
+
+
+def read_records(path: Path) -> list[dict]:
+    """Existing entries of sanity.json; an unreadable file is replaced rather than crashing the check."""
+    if not path.exists():
+        return []
+    try:
+        data = json.loads(path.read_text())
+    except (OSError, ValueError) as error:
+        print(f"WARNING: {path} is unreadable ({error}); starting a new one", file=sys.stderr)
+        return []
+    return [item for item in data if isinstance(item, dict)] if isinstance(data, list) else []
 
 
 def save_figure(fig, root: Path, name: str) -> Path:
@@ -95,6 +109,8 @@ def edge_selectivity(network) -> dict:
         result[name] = {
             "T4": fs.mean_depolarization(activity, fs.T4_TYPES),
             "T5": fs.mean_depolarization(activity, fs.T5_TYPES),
+            "T4_peak": fs.peak_depolarization(activity, fs.T4_TYPES),
+            "T5_peak": fs.peak_depolarization(activity, fs.T5_TYPES),
             "T4_abs": fs.mean_abs_change(activity, fs.T4_TYPES),
             "T5_abs": fs.mean_abs_change(activity, fs.T5_TYPES),
         }
@@ -109,11 +125,12 @@ def selectivity_note(result: dict, network_name: str) -> str:
     on, off = result["ON"], result["OFF"]
     unsigned_agrees = on["T4_abs"] > on["T5_abs"] and off["T5_abs"] > off["T4_abs"]
     return (
-        f"network {network_name}: ON edge T4 {on['T4']:.3f} vs T5 {on['T5']:.3f}; "
-        f"OFF edge T5 {off['T5']:.3f} vs T4 {off['T4']:.3f} (mean depolarization, arbitrary units). "
-        f"Counting falls as well as rises (mean |change|), the same ordering "
-        f"{'holds' if unsigned_agrees else 'does NOT hold'}: ON T4 {on['T4_abs']:.3f} vs T5 {on['T5_abs']:.3f}, "
-        f"OFF T5 {off['T5_abs']:.3f} vs T4 {off['T4_abs']:.3f}"
+        f"network {network_name}, voltage rise above the pre-edge level (arbitrary units). "
+        f"Mean rise: ON edge T4 {on['T4']:.3f} vs T5 {on['T5']:.3f}; OFF edge T5 {off['T5']:.3f} vs T4 {off['T4']:.3f}. "
+        f"Peak rise: ON edge T4 {on['T4_peak']:.3f} vs T5 {on['T5_peak']:.3f}; OFF edge T5 {off['T5_peak']:.3f} vs T4 {off['T4_peak']:.3f}. "
+        f"Pass/fail uses the mean rise. The unsigned mean change, which also counts cells being pushed below "
+        f"their pre-edge level, {'gives the same ordering' if unsigned_agrees else 'does NOT give the same ordering'}: "
+        f"ON T4 {on['T4_abs']:.3f} vs T5 {on['T5_abs']:.3f}, OFF T5 {off['T5_abs']:.3f} vs T4 {off['T4_abs']:.3f}"
     )
 
 
